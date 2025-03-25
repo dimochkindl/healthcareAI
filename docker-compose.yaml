@@ -1,0 +1,31 @@
+version: '3.10'
+
+services:
+  postgres-micro:
+    container_name: postgres_service
+    build:
+      context: ./chatbot
+      dockerfile: PostgresDockerfile
+    env_file:
+      - ./.env
+    command: -p 5436
+    ports:
+      - "5432:5436"
+    volumes:
+      - ./db-backup:/var/lib/postgresql/data
+
+  micro-chatbot:
+    container_name: micro_chatbot
+    build:
+      context: ./chatbot
+      dockerfile: Dockerfile
+    command: ["dockerize", "-wait", "tcp://postgres_service:5436", "-timeout", "1m", "--", "python", "./main.py"]
+    env_file:
+      - ./chatbot/.env
+    volumes:
+      - ./chatbot:/app
+    depends_on:
+      - postgres-micro
+    restart: always
+    ports:
+      - "8000:8006"
