@@ -1,5 +1,5 @@
 import sqlalchemy
-from chatbot.core.db import metadata
+from core.db import metadata
 
 
 assistant_answers = sqlalchemy.Table(

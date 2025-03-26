@@ -4,28 +4,41 @@ services:
   postgres-micro:
     container_name: postgres_service
     build:
-      context: ./chatbot
+      context: ./postgres
       dockerfile: PostgresDockerfile
     env_file:
       - ./.env
-    command: -p 5436
+    command: -p 5437
     ports:
-      - "5432:5436"
+      - "5432:5437"
     volumes:
-      - ./db-backup:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d giga -p 5437"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   micro-chatbot:
     container_name: micro_chatbot
     build:
       context: ./chatbot
       dockerfile: Dockerfile
-    command: ["dockerize", "-wait", "tcp://postgres_service:5436", "-timeout", "1m", "--", "python", "./main.py"]
+    command: >
+      sh -c "dockerize
+      -wait tcp://postgres_service:5437
+      -timeout 2m
+      -- python ./main.py"
     env_file:
       - ./chatbot/.env
     volumes:
       - ./chatbot:/app
     depends_on:
-      - postgres-micro
-    restart: always
+      postgres-micro:
+        condition: service_healthy
+    restart: unless-stopped
     ports:
       - "8000:8006"
+
+volumes:
+  postgres_data:

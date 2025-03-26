@@ -1,5 +1,5 @@
 import sqlalchemy
-from chatbot.core.db import metadata
+from core.db import metadata
 
 
 chats = sqlalchemy.Table(

@@ -1,4 +1,3 @@
-import sqlalchemy
 from db.user_queries import user_queries
 from repository.database.database import DatabaseRepository
 
