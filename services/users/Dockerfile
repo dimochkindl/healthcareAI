@@ -16,4 +16,4 @@ COPY . .
 EXPOSE 8000
 
 # Use dockerize to wait for dependencies (PostgreSQL, Redis, etc.)
-CMD ["dockerize", "-wait", "tcp://postgres_service:5436", "-timeout", "1m", "--", "python", "main.py"]
+CMD ["dockerize", "-wait", "tcp://postgres_service:5436", "-timeout", "1m", "--", "python", "services.users.main.py"]

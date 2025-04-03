@@ -4,13 +4,13 @@ services:
   postgres-micro:
     container_name: postgres_service
     build:
-      context: ./postgres
+      context: services/postgres
       dockerfile: PostgresDockerfile
     env_file:
       - ./.env
     command: -p 5437
     ports:
-      - "5432:5437"
+      - "5437:5437"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -22,7 +22,7 @@ services:
   micro-chatbot:
     container_name: micro_chatbot
     build:
-      context: ./chatbot
+      context: services/chatbot
       dockerfile: Dockerfile
     command: >
       sh -c "dockerize
@@ -30,9 +30,9 @@ services:
       -timeout 2m
       -- python ./main.py"
     env_file:
-      - ./chatbot/.env
+      - services/chatbot/.env
     volumes:
-      - ./chatbot:/app
+      - ./services/chatbot:/app
     depends_on:
       postgres-micro:
         condition: service_healthy

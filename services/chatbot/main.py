@@ -32,6 +32,6 @@ async def shutdown():
 
 
 if __name__ == "__main__":
-	alembic_cfg = Config("./alembic.ini")
+	alembic_cfg = Config("alembic.ini")
 	command.upgrade(alembic_cfg, "head")
 	uvicorn.run("main:app", port=8006, host="0.0.0.0", reload=True)
