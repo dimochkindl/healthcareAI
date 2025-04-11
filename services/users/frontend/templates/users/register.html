@@ -1,0 +1,38 @@
+{% extends "users/base.html" %}
+
+{% block content %}
+<div class="user-form-container">
+    <h2>Create New User</h2>
+    <div id="error-message" class="error-message" style="display: none;"></div>
+
+    <form id="userCreateForm" method="POST" action="/users/create">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+            <div class="error" id="username-error"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+            <div class="error" id="email-error"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+            <div class="error" id="password-error"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="confirm_password">Confirm Password</label>
+            <input type="password" id="confirm_password" name="confirm_password" required>
+            <div class="error" id="confirm-password-error"></div>
+        </div>
+
+        <button type="submit" class="btn-primary">Create User</button>
+    </form>
+</div>
+
+<script src="{{ url_for('static', path='/js/user-create.js') }}"></script>
+{% endblock %}

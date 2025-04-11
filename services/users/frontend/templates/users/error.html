@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error Occurred</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/error.css') }}">
+</head>
+<body>
+    <div class="error-card">
+        <div class="error-icon">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path>
+            </svg>
+        </div>
+        <h1 class="error-title">Oops! Something Went Wrong</h1>
+        <p class="error-message">
+            {% if error_message %}
+                {{ error_message }}
+            {% else %}
+                We encountered an issue processing your request. Please try again later.
+            {% endif %}
+        </p>
+        <div class="error-details" id="errorDetails" style="display: none;">
+            <pre id="errorStack"></pre>
+        </div>
+        <div class="action-buttons">
+            <a href="/" class="home-btn">Return Home</a>
+            <button id="showDetailsBtn" class="details-btn">Show Details</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', path='/js/error.js') }}"></script>
+</body>
+</html>

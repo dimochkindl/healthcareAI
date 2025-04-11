@@ -1,10 +1,9 @@
 import logging
-from logging import DEBUG
 from sqlalchemy import NullPool
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.exc import SQLAlchemyError
-from services.users.core.config import POSTGRES_HOST, POSTGRES_USER, POSTGRES_PORT, POSTGRES_PASSWORD
-from typing import Optional, AsyncGenerator, Any, Generator
+from core.config import POSTGRES_HOST, POSTGRES_USER, POSTGRES_PORT, POSTGRES_PASSWORD, POSTGRES_DB
+from typing import Optional, AsyncGenerator
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, AsyncEngine, AsyncConnection
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from contextlib import asynccontextmanager
@@ -20,14 +19,15 @@ class DatabaseSessionManager:
 
     def init(self, host: str):
         db_url = (
-            f'postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}'
+            f'postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}'
         )
+        print("db_url", db_url)
 
         pool_class = NullPool if 'test' in host else None
 
         self._engine = create_async_engine(
             db_url,
-            echo=DEBUG,
+            echo=True,
             pool_size=10,
             pool_pre_ping=True,
             pool_recycle=3600,
@@ -106,10 +106,14 @@ def init_db():
     session_manager.init(POSTGRES_HOST)
     logger.info('Database initialized')
 
-def get_db() -> Generator[Any, None, None]:
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with session_manager.manage_session() as session:
         yield session
 
 
+async def manage_session() -> AsyncSession:
+    async with session_manager.manage_session() as session:
+        return session
+
 class DefaultBase(DeclarativeBase):
-    metadata = DeclarativeBase.metadata
+    pass

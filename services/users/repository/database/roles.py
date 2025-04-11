@@ -1,16 +1,25 @@
 from sqlalchemy import select
-from services.users.core.db import DatabaseSessionManager
-from services.users.repository.db import DatabaseRepository
-from services.users.schema.users import Role, user_roles
+from core.db import manage_session
+from repository.db import DatabaseRepository
+from schema.users import Role, user_roles
+
 
 class RolesRepository(DatabaseRepository):
 
-    def __init__(self, manager: DatabaseSessionManager):
-        super().__init__(Role, manager)
+    model = Role
 
-    async def get_user_roles(self, user_id):
-        async with self.manager.manage_session() as session:
+    @staticmethod
+    async def get_user_roles(user_id):
+        async with manage_session() as session:
             roles = await session.execute(
                 select(Role).join(user_roles, user_roles.c.role_id == Role.id).where (user_roles.c.user_id == user_id)
+            )
+        return roles.scalars().all()
+
+    @staticmethod
+    async def get_by_name( name):
+        async with manage_session() as session:
+            roles = await session.execute(
+                select(Role).where(Role.name == name)
             )
         return roles.scalars().all()

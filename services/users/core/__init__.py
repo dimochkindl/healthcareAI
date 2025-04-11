@@ -1,11 +1,7 @@
-from . import config
-from schema.users import (
-    User,
-    Role,
-    Group,
-    Permission,
-    user_roles, user_groups,
-    user_permissions,
-    role_permissions,
-    group_roles
-)
+def get_user_model():
+    from schema.users import User
+    return User
+
+def get_role_model():
+    from schema.users import Role
+    return Role

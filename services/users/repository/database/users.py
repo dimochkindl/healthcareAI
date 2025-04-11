@@ -1,17 +1,35 @@
 from sqlalchemy import select
-from services.users.repository.db import DatabaseRepository
-from services.users.schema.users import User, user_groups
-from services.users.core.db import DatabaseSessionManager
+from sqlalchemy.ext.asyncio import AsyncSession
+from schema.users import User, user_groups
 
 
-class UsersRepository(DatabaseRepository):
+class UsersRepository:
+    def __init__(self, session: AsyncSession):
+        self.session = session
 
-    def __init__(self, manager: DatabaseSessionManager):
-        super().__init__(model=User, session_manager=manager)
+    async def get_users_by_group(self, group_id: int) -> list[User]:
+        result = await self.session.execute(
+            select(User)
+            .join(user_groups, user_groups.c.user_id == User.id)
+            .where(user_groups.c.group_id == group_id)
+        )
+        return list(result.scalars().all())
 
-    async def get_users_by_group(self, group_id):
-        async with self.manager.manage_session as session:
-            users = await session.execute(
-                select(User).join(user_groups, user_groups.c.user_id == User.id).where(user_groups.group_id == group_id)
-            )
-        return users.scalars().all()
+    async def create_user(self, user_data: dict) -> User:
+        user = User(**user_data)
+        self.session.add(user)
+        await self.session.commit()
+        await self.session.refresh(user)
+        return user
+
+    async def get_by_email(self, email: str) -> User | None:
+        result = await self.session.execute(
+            select(User).where(User.email == email)
+        )
+        return result.scalars().first()
+
+    async def get_by_username(self, username: str) -> User | None:
+        result = await self.session.execute(
+            select(User).where(User.username == username)
+        )
+        return result.scalars().first()

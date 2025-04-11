@@ -1,6 +1,6 @@
 from datetime import datetime
 import sqlalchemy
-from services.users.core.db import DefaultBase
+from core.db import DefaultBase
 from sqlalchemy import Integer, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import mapped_column, Mapped
 
@@ -80,7 +80,7 @@ user_groups = sqlalchemy.Table(
     'user_groups',
     DefaultBase.metadata,
     sqlalchemy.Column('user_id', Integer, ForeignKey('users.id')),
-    sqlalchemy.COlumn('group_id', Integer, ForeignKey('groups.id')),
+    sqlalchemy.Column('group_id', Integer, ForeignKey('groups.id')),
 )
 
 

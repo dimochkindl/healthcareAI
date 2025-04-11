@@ -1,41 +1,54 @@
-from services.users.core.db import DatabaseSessionManager, DefaultBase
+from core.db import DefaultBase, manage_session
 from sqlalchemy import select
-from typing import TypeVar, Type
+from typing import TypeVar, Type, List
 
 T = TypeVar('T', bound=DefaultBase)
 
-
 class DatabaseRepository:
 
-    def __init__(self, model: Type[T], session_manager: DatabaseSessionManager):
-        self.session_manager = session_manager
-        self.model = model
+    model: Type[T]
 
-    async def create(self, data: dict) -> T:
-        async with self.session_manager as session:
-            data = self.model(**data)
+    @classmethod
+    async def create(cls, data: dict) -> T:
+        async with manage_session() as session:
+            data = cls.model(**data)
             session.add(data)
             await session.commit()
             return data
 
-    async def get_all(self, skip: int = 0, limit: int = 15) -> list[T]:
-        async with self.session_manager as session:
-            result = await session.fetch_all(
-                select(self.model).offset(skip).limit(limit)
+    @classmethod
+    async def get_all(cls, skip: int = 0, limit: int = 15) -> List[T]:
+        async with manage_session() as session:
+            result = await session.execute(
+                select(cls.model).offset(skip).limit(limit)
             )
             return result.scalars().all()
 
-    async def get_by_id(self, id: int) -> T:
-        async with self.session_manager as session:
-            return await session.get(self.model(id=id))
+    @classmethod
+    async def get_by_id(cls, id: int) -> T:
+        async with manage_session() as session:
+            return await session.get(cls.model, id)
 
-    async def update(self, data: dict, id: int) -> T:
-        async with self.session_manager as session:
-            db_object = await session.get(self.model(id=id))
+    @classmethod
+    async def update(cls, data: dict, id: int) -> T:
+        async with manage_session() as session:
+            db_object = await session.get(cls.model, id)
             if not db_object:
-                raise ValueError(f'Can not fint in db object with id {id}')
+                raise ValueError(f'Cannot find object with id {id}')
 
-            session.update(self.model(**data), id)
+            for key, value in data.items():
+                setattr(db_object, key, value)
+
             await session.commit()
-            await session.refresh(self.model(id=id))
+            await session.refresh(db_object)
             return db_object
+
+    @classmethod
+    async def delete(cls, id: int):
+        object_from_db = cls.get_by_id(id)
+        if not object_from_db:
+            raise ValueError(f'Cannot find object with id {id}')
+
+        async with manage_session() as session:
+            await session.delete(object)
+            session.commit()

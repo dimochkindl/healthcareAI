@@ -6,9 +6,9 @@ services:
     build:
       context: services/postgres
       dockerfile: PostgresDockerfile
+    command: '-p 5437'
     env_file:
       - ./.env
-    command: -p 5437
     ports:
       - "5437:5437"
     volumes:
@@ -24,21 +24,28 @@ services:
     build:
       context: services/chatbot
       dockerfile: Dockerfile
-    command: >
-      sh -c "dockerize
-      -wait tcp://postgres_service:5437
-      -timeout 2m
-      -- python ./main.py"
     env_file:
       - services/chatbot/.env
-    volumes:
-      - ./services/chatbot:/app
     depends_on:
       postgres-micro:
         condition: service_healthy
     restart: unless-stopped
     ports:
-      - "8000:8006"
+      - "8006:8006"
+
+  users:
+    container_name: micro-users
+    build:
+      context: services/users
+      dockerfile: Dockerfile
+    env_file:
+      - services/users/.env
+    depends_on:
+      postgres-micro:
+        condition: service_healthy
+    restart: unless-stopped
+    ports:
+      - "8005:8005"
 
 volumes:
   postgres_data:

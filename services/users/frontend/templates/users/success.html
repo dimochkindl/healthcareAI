@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Successful</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/success.css') }}">
+</head>
+<body>
+    <div class="success-card">
+        <div class="checkmark">
+            <svg class="checkmark__svg" viewBox="0 0 52 52">
+                <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"></circle>
+                <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"></path>
+            </svg>
+        </div>
+        <h1 class="success-title">Registration Successful!</h1>
+        <p class="success-message">
+            Your account has been created successfully. We've sent a confirmation email to your address.
+            You can now log in to access your account.
+        </p>
+        <a href="/login" class="login-btn">Continue to Login</a>
+    </div>
+
+    <script src="{{ url_for('static', path='/static/js/success.js')}}"></script>
+</body>
+</html>
